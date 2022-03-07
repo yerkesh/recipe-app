@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
 	"recipe-app/pkg/domain/constant"
 	"recipe-app/pkg/util/fault"
+	"strconv"
 )
 
 type ServiceResponse struct {
@@ -45,7 +45,7 @@ func UnhandledServiceResponse(e error) *ServiceResponse {
 	}
 }
 
-func ErrServiceResponse(e *fault.WhsError) *ServiceResponse {
+func ErrServiceResponse(e *fault.RecipeError) *ServiceResponse {
 	return &ServiceResponse{ //nolint:exhaustivestruct // partial response
 		Code:       strconv.Itoa(e.HTTPStatus),
 		Status:     http.StatusText(e.HTTPStatus),
@@ -56,7 +56,7 @@ func ErrServiceResponse(e *fault.WhsError) *ServiceResponse {
 }
 
 func checkSetSsoError(err error) (status int, value *ServiceResponse) {
-	if e, ok := err.(*fault.WhsError); ok { //nolint:errorlint // don't know how to use
+	if e, ok := err.(*fault.RecipeError); ok { //nolint:errorlint // don't know how to use
 		status = e.HTTPStatus
 		value = ErrServiceResponse(e)
 	} else {

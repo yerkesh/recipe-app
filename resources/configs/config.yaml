@@ -1,0 +1,15 @@
+serviceName: recipe-app
+version: ${VERSION:0.0.0}
+
+server:
+  port: :8090
+database:
+  name: recipe_app_db
+  uri: postgres://user:pass@localhost:5432/recipe_app_db?sslmode=disable
+migration:
+  migrationsTable: "schema_migrations"
+  statementTimeout: 60s
+  databaseName: recipe_app_db
+  multiStatementEnabled: true
+
+

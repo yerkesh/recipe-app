@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"recipe-app/pkg/service"
 
 	"github.com/gorilla/schema"
@@ -12,7 +13,7 @@ type Ctx struct {
 }
 
 
-func NewHandlerCtx(opts ...Option) *Ctx {
+func NewHandlerCtx(ctx context.Context, opts ...Option) *Ctx {
 	var h Ctx
 	h.queryDecoder = schema.NewDecoder()
 
