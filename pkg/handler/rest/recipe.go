@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 	"recipe-app/pkg/handler"
 	"recipe-app/pkg/util/writer"
@@ -16,6 +16,6 @@ func NewRecipeRest(ctx *handler.Ctx) *RecipeRest {
 }
 
 func (r *RecipeRest) Hello(res http.ResponseWriter, req *http.Request) {
-	fmt.Println(req.Context())
-	writer.HTTPResponseWriter(res,nil,r.ctx.RecipeService.Hello())
+	log.Println("get req")
+	writer.HTTPResponseWriter(res, nil, r.ctx.RecipeService.Hello())
 }

@@ -5,7 +5,7 @@ server:
   port: :8090
 database:
   name: recipe_app_db
-  uri: postgres://user:pass@localhost:5432/recipe_app_db?sslmode=disable
+  uri: postgres://postgres:postgres@164.92.136.171:5432/recipe_app_db?sslmode=disable
 migration:
   migrationsTable: "schema_migrations"
   statementTimeout: 60s
