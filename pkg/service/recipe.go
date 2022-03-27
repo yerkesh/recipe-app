@@ -1,7 +1,6 @@
 package service
 
 type RecipeService struct {
-
 }
 
 func NewRecipeService() *RecipeService {
@@ -9,5 +8,5 @@ func NewRecipeService() *RecipeService {
 }
 
 func (svc *RecipeService) Hello() string {
-	return "HELLO WORLD......\n REST is initialized"
+	return "Daria keep calm and study well"
 }
