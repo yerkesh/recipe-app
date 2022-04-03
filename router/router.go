@@ -12,10 +12,13 @@ func Router(h *handler.Ctx) chi.Router {
 	log.Println("Router is initialized")
 
 	r := chi.NewRouter()
-	rst :=rest.NewRecipeRest(h)
+	rst := rest.NewRecipeRest(h)
 	r.Use(middleware.Logger)
 	r.Route("/", func(r chi.Router) {
-		r.Get("/hello", rst.Hello)
+		r.Get("/recipe/review/{recipeID}", rst.RecipeReview)
+		r.Post("/leave/review", rst.LeaveReview)
+		r.Get("/recipe/{recipeID}", rst.GetRecipe)
+		r.Get("/recipe/steps/{recipeID}", rst.RecipeSteps)
 	})
 	return r
 }

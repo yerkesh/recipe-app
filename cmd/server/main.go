@@ -10,6 +10,7 @@ import (
 	"os"
 	"recipe-app/internal/config"
 	"recipe-app/pkg/handler"
+	"recipe-app/pkg/repository/database"
 	"recipe-app/pkg/service"
 	"recipe-app/router"
 )
@@ -36,7 +37,6 @@ func readFile(cfg *config.Config) {
 func main() {
 	var cfg config.Config
 	readFile(&cfg)
-	//fmt.Printf("%+v", cfg)
 
 	ctx := context.Background()
 
@@ -47,7 +47,7 @@ func main() {
 		return
 	}
 
-	handlerCtx := handler.NewHandlerCtx(ctx, handler.WithRecipeService(service.NewRecipeService()))
+	handlerCtx := handler.NewHandlerCtx(ctx, handler.WithRecipeService(service.NewRecipeService(database.NewRecipeApp(pool))))
 
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
