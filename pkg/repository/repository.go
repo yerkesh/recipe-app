@@ -29,4 +29,14 @@ type RecipeRepoer interface {
 		tx pgx.Tx,
 		review *domain.ReviewCreate,
 	) (rID uint64, err error)
+	AddToFavourite(
+		reqCtx context.Context,
+		tx pgx.Tx,
+		userID, recipeID uint64,
+	) (favID uint64, err error)
+	GetUserFavourite(
+		reqCtx context.Context,
+		tx pgx.Tx,
+		userID uint64,
+	) (fs []*domain.UserFavourite, err error)
 }

@@ -151,14 +151,10 @@ func UnhandledDBError(stmt string, args []interface{}, err error) *DBRaisedError
 	return &DBRaisedError{Reason: Unhandled, Stmt: stmt, Args: args, Err: err, Debug: true}
 }
 
+// SanitizeDBError is used to handle db errors.
 func SanitizeDBError(err error, stmt string, args []interface{}) error {
-	var matchDBErr *DBRaisedError
-	if ok := errors.As(err, &matchDBErr); ok {
-		return err
-	}
-
 	var match *pgconn.PgError
-	if ok := errors.As(err, &match); ok {
+	if ok := errors.Is(err, match); ok {
 		switch match.Code {
 		case constant.PgUniqueConstraintViolation:
 			return EntryAlreadyExistsInDBError(stmt, args, err)
@@ -166,8 +162,6 @@ func SanitizeDBError(err error, stmt string, args []interface{}) error {
 			return ParentObjectNotFoundInDBError(stmt, args, err)
 		case constant.PgCheckConstraint:
 			return FailCheckInDBError(stmt, args, err)
-		case constant.PgRelationDoesNotExist:
-			return NotFoundInDBError(stmt, args)
 		// Add the other cases as soon as they're raised.
 		default:
 			return UnhandledDBError(stmt, args, err)
@@ -182,9 +176,9 @@ func SanitizeDBError(err error, stmt string, args []interface{}) error {
 }
 
 func SanitizeServiceError(err error) error {
-	var expectedErr *DBRaisedError
-	if match := errors.As(err, &expectedErr); match {
-		switch expectedErr.Reason {
+	var expectedDBErr *DBRaisedError
+	if match := errors.As(err, &expectedDBErr); match {
+		switch expectedDBErr.Reason {
 		case NotFound, NoRowsChanged:
 			return Whs404Error(err.Error(), constant.MsgNotFoundErr)
 		case ParentNotFound, FailsCheckConstraint:
@@ -198,12 +192,7 @@ func SanitizeServiceError(err error) error {
 		}
 	}
 
-	var msmtErr *DBRaisedError
-	if match := errors.As(err, &msmtErr); match {
-		return Whs400Error(err.Error(), constant.MsgRequestBodyErr)
-	}
-
-	return Whs500Error(err.Error(), constant.MsgUnhandledErr)
+	return err
 }
 
 type Cmp string

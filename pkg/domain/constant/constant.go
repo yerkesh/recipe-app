@@ -40,6 +40,7 @@ const (
 	TblRecipeStep               Table = "recipe_step"
 	TblComment                  Table = "comment"
 	TblRate                     Table = "rate"
+	TblUserFavourite            Table = "user_favourite"
 )
 
 func (t Table) As(as ...string) string {

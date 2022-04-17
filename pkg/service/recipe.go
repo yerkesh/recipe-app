@@ -8,6 +8,7 @@ import (
 	"recipe-app/pkg/domain/constant"
 	"recipe-app/pkg/repository"
 	"recipe-app/pkg/util/fault"
+	"recipe-app/pkg/util/validator"
 	"recipe-app/pkg/util/writer"
 )
 
@@ -86,4 +87,41 @@ func (svc *RecipeService) LeaveReview(reqCtx context.Context, r *domain.ReviewCr
 	cr.ServiceResponse = writer.ServiceResponseCreated(constant.MsgCreated)
 
 	return &cr, nil
+}
+
+func (svc *RecipeService) AddToFavourite(reqCtx context.Context, fav *domain.UserFavouriteCreate) (crv *domain.CreatedObjectView, err error) {
+	var cr domain.CreatedObjectView
+	var favID uint64
+	if msg, vmap := validator.Validate(fav); msg != nil {
+		return nil, fault.WhsValidateError(*msg, vmap)
+	}
+
+	if err = svc.repo.Begin(reqCtx, func(tx pgx.Tx) error {
+		if favID, err = svc.repo.AddToFavourite(reqCtx, tx, fav.UserID, fav.RecipeID); err != nil {
+			return fmt.Errorf("couldn't add user favourites err %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, fault.SanitizeServiceError(err)
+	}
+
+	cr.ID = favID
+	cr.ServiceResponse = writer.ServiceResponseCreated(constant.MsgCreated)
+
+	return &cr, nil
+}
+
+func (svc *RecipeService) UserFavourites(reqCtx context.Context, userID uint64) (fs []*domain.UserFavourite, err error) {
+	if err = svc.repo.Begin(reqCtx, func(tx pgx.Tx) error {
+		if fs, err = svc.repo.GetUserFavourite(reqCtx, tx, userID); err != nil {
+			return fmt.Errorf("couldn't get user favourites err %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return nil, fault.SanitizeServiceError(err)
+	}
+
+	return fs, nil
 }

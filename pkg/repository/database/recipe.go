@@ -124,6 +124,10 @@ func (repo *RecipeRepo) GetRecipeReview(
 	scans := c.ScanFields()
 	if _, err = tx.QueryFunc(reqCtx, qs, args, scans, func(row pgx.QueryFuncRow) error {
 		curRew := *c
+		if curRew.CommentNullable.Valid {
+			curRew.CommentText = curRew.CommentNullable.String
+		}
+
 		reviews = append(reviews, &curRew)
 
 		return nil
@@ -171,22 +175,59 @@ func (repo *RecipeRepo) LeaveReview(
 	return rID, nil
 }
 
-func (repo *RecipeRepo) updateRecipeRate(reqCtx context.Context, tx pgx.Tx, recipeID uint64) error {
-	calculatedStar := sql.SB().Select("round(sum(star::numeric)/count(id), 1").
-		From(constant.TblComment.String()).
-		Where(sq.Eq{"recipe_id": recipeID})
-	qs, args, err := sql.SB().Update(constant.TblRecipe.String()).Set("rate", calculatedStar).ToSql()
+func (repo *RecipeRepo) AddToFavourite(reqCtx context.Context, tx pgx.Tx, userID, recipeID uint64) (favID uint64, err error) {
+	qs, args, err := sql.SB().Insert(constant.TblUserFavourite.String()).
+		Columns("user_id", "recipe_id").Values(userID, recipeID).Suffix("returning id").ToSql()
 	if err != nil {
-		log.Printf("sql scan err: %v", err)
+		log.Printf("sql compose err %s", err)
 
-		return fault.SanitizeDBError(err, qs, args)
+		return 0, fault.SanitizeDBError(err, qs, args)
 	}
 
-	if _, err = tx.Exec(reqCtx, qs, args...); err != nil {
-		log.Printf("sql exec err: %v", err)
+	if err = tx.QueryRow(reqCtx, qs, args...).Scan(&favID); err != nil {
+		log.Printf("sql scan err %s", err)
 
-		return fault.SanitizeDBError(err, qs, args)
+		return 0, fault.SanitizeServiceError(err)
 	}
 
-	return nil
+	return favID, nil
+}
+
+func (repo *RecipeRepo) GetUserFavourite(
+	reqCtx context.Context,
+	tx pgx.Tx,
+	userID uint64,
+) (fs []*domain.UserFavourite, err error) {
+	qs, args, err := sql.SB().Select(
+		"rec.id",
+		"rec.name",
+		"rec.cooking_time",
+		"rec.calorie",
+		"rec.image",
+		"rec.rate",
+		"cplx.name",
+		"cat.name").From(constant.TblRecipe.As("rec")).
+		Join(constant.TblUserFavourite.As("f on f.recipe_id=rec.id")).
+		Join(constant.TblComplexity.As("cplx on cplx.id=rec.complexity_id")).
+		Join(constant.TblCategory.As("cat on cat.id=rec.category_id")).
+		Where(sq.Eq{"f.user_id": userID}).ToSql()
+	if err != nil {
+		log.Printf("sql compose err %s", err)
+
+		return
+	}
+
+	f := new(domain.UserFavourite)
+	if _, err = tx.QueryFunc(reqCtx, qs, args, f.ScanFields(), func(row pgx.QueryFuncRow) error {
+		curr := *f
+		fs = append(fs, &curr)
+
+		return nil
+	}); err != nil {
+		log.Printf("sql scan err %s", err)
+
+		return nil, fault.SanitizeDBError(err, qs, args)
+	}
+
+	return fs, nil
 }

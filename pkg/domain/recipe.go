@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type RecipeView struct {
 	RecipeID    uint64       `json:"recipe_id"`
@@ -43,19 +46,49 @@ func (s *Step) ScanFields() []interface{} {
 }
 
 type Review struct {
-	CommentID   uint64    `json:"comment_id"`
-	UserName    string    `json:"username"`
-	Star        uint64    `json:"star"`
-	CommentText string    `json:"comment_text"`
-	CreatedDate time.Time `json:"created_date"`
+	CommentID       uint64         `json:"comment_id"`
+	UserName        string         `json:"username"`
+	Star            uint64         `json:"star"`
+	CommentText     string         `json:"comment_text"`
+	CommentNullable sql.NullString `json:"-"`
+	CreatedDate     time.Time      `json:"created_date"`
 }
 
 func (r *Review) ScanFields() []interface{} {
 	return []interface{}{
 		&r.CommentID,
-		&r.CommentText,
+		&r.CommentNullable,
 		&r.Star,
 		&r.CreatedDate,
 		&r.UserName,
+	}
+}
+
+type UserFavouriteCreate struct {
+	UserID   uint64 `json:"user_id" validate:"required"`
+	RecipeID uint64 `json:"recipe_id" validate:"required"`
+}
+
+type UserFavourite struct {
+	RecipeId   uint64 `json:"recipe_id"`
+	Name       string `json:"name"`
+	Category   string `json:"category"`
+	Complexity string `json:"complexity"`
+	Rate       uint64 `json:"rate"`
+	Duration   uint64 `json:"duration"`
+	Calorie    uint64 `json:"calorie"`
+	ImageURL   string `json:"image_url"`
+}
+
+func (u *UserFavourite) ScanFields() []interface{} {
+	return []interface{}{
+		&u.RecipeId,
+		&u.Name,
+		&u.Duration,
+		&u.Calorie,
+		&u.ImageURL,
+		&u.Rate,
+		&u.Complexity,
+		&u.Category,
 	}
 }
