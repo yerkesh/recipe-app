@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"recipe-app/pkg/domain"
+	"recipe-app/pkg/util/writer"
 )
 
 type RecipeServicer interface {
@@ -12,4 +13,5 @@ type RecipeServicer interface {
 	LeaveReview(reqCtx context.Context, r *domain.ReviewCreate) (crv *domain.CreatedObjectView, err error)
 	UserFavourites(reqCtx context.Context, userID uint64) (fs []*domain.UserFavourite, err error)
 	AddToFavourite(reqCtx context.Context, fav *domain.UserFavouriteCreate) (crv *domain.CreatedObjectView, err error)
+	RemoveUserFavourite(reqCtx context.Context, userID, recipeID uint64) (res writer.ServiceResponse, err error)
 }

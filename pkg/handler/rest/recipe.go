@@ -175,3 +175,40 @@ func (r *RecipeRest) GetUserFavourites(res http.ResponseWriter, req *http.Reques
 
 	writer.HTTPResponseWriter(res, nil, favs)
 }
+
+func (r *RecipeRest) RemoveFavourite(res http.ResponseWriter, req *http.Request) {
+	var userID, recipeID uint64
+	var err error
+	var reser writer.ServiceResponse
+
+	if userIdStr, recipeIdStr := chi.URLParam(req, userIDCtxKey.String()),
+		chi.URLParam(req, recipeIDCtxKey.String()); userIdStr != "" || recipeIdStr != "" {
+
+		if userID, err = util.ParseUint64(userIdStr); err != nil {
+			writer.HTTPResponseWriter(res, fault.Whs400Error(err.Error(), constant.MsgRequestBodyErr), nil)
+
+			return
+		}
+
+		if recipeID, err = util.ParseUint64(recipeIdStr); err != nil {
+			writer.HTTPResponseWriter(res, fault.Whs400Error(err.Error(), constant.MsgRequestBodyErr), nil)
+
+			return
+		}
+
+		reser, err = r.ctx.RecipeService.RemoveUserFavourite(req.Context(), userID, recipeID)
+		if err != nil {
+			writer.HTTPResponseWriter(res, err, nil)
+
+			return
+		}
+
+		return
+	} else {
+		writer.HTTPResponseWriter(res, fault.Whs404Error(err.Error(), constant.MsgNotFoundErr), nil)
+
+		return
+	}
+
+	writer.HTTPResponseWriter(res, nil, reser)
+}

@@ -21,6 +21,7 @@ func Router(h *handler.Ctx) chi.Router {
 		r.Get("/recipe/steps/{recipeID}", rst.RecipeSteps)
 		r.Get("/user/favourite/{userID}", rst.GetUserFavourites)
 		r.Post("/user/favourite", rst.AddToFavourites)
+		r.Delete("/user/favourite/{userID}/recipe/{recipeID}", rst.RemoveFavourite)
 	})
 
 	return r

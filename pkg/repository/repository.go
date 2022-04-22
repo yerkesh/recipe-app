@@ -39,4 +39,5 @@ type RecipeRepoer interface {
 		tx pgx.Tx,
 		userID uint64,
 	) (fs []*domain.UserFavourite, err error)
+	RemoveFavourite(reqCtx context.Context, tx pgx.Tx, userID, recipeID uint64) (err error)
 }

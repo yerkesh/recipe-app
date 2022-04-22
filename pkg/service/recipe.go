@@ -125,3 +125,19 @@ func (svc *RecipeService) UserFavourites(reqCtx context.Context, userID uint64) 
 
 	return fs, nil
 }
+
+func (svc *RecipeService) RemoveUserFavourite(reqCtx context.Context, userID, recipeID uint64) (res writer.ServiceResponse, err error) {
+	if err = svc.repo.Begin(reqCtx, func(tx pgx.Tx) error {
+		if err = svc.repo.RemoveFavourite(reqCtx, tx, userID, recipeID); err != nil {
+			return fmt.Errorf("couldn't remove err %w", err)
+		}
+
+		return nil
+	}); err != nil {
+		return res, fault.SanitizeServiceError(err)
+	}
+
+	res = writer.ServiceResponseOk(constant.MsgDeleted)
+
+	return res, nil
+}

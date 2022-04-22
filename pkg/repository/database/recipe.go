@@ -231,3 +231,21 @@ func (repo *RecipeRepo) GetUserFavourite(
 
 	return fs, nil
 }
+
+func (repo *RecipeRepo) RemoveFavourite(reqCtx context.Context, tx pgx.Tx, userID, recipeID uint64) (err error) {
+	qs, args, err := sql.SB().Delete(constant.TblUserFavourite.String()).Where(
+		sq.And{sq.Eq{"user_id": userID}, sq.Eq{"recipe_id": recipeID}}).ToSql()
+	if err != nil {
+		log.Printf("sql compose err %s", err)
+
+		return fault.SanitizeDBError(err, qs, args)
+	}
+
+	if _, err = tx.Exec(reqCtx, qs, args...); err != nil {
+		log.Printf("sql exec err %s", err)
+
+		return fault.SanitizeDBError(err, qs, args)
+	}
+
+	return nil
+}
