@@ -201,10 +201,12 @@ func (repo *RecipeRepo) GetUserFavourite(
 	qs, args, err := sql.SB().Select(
 		"rec.id",
 		"rec.name",
+		"rec.Description",
 		"rec.cooking_time",
 		"rec.calorie",
 		"rec.image",
 		"rec.rate",
+		"cplx.id",
 		"cplx.name",
 		"cat.name").From(constant.TblRecipe.As("rec")).
 		Join(constant.TblUserFavourite.As("f on f.recipe_id=rec.id")).

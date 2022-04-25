@@ -70,25 +70,33 @@ type UserFavouriteCreate struct {
 }
 
 type UserFavourite struct {
-	RecipeId   uint64 `json:"recipe_id"`
-	Name       string `json:"name"`
-	Category   string `json:"category"`
-	Complexity string `json:"complexity"`
-	Rate       uint64 `json:"rate"`
-	Duration   uint64 `json:"duration"`
-	Calorie    uint64 `json:"calorie"`
-	ImageURL   string `json:"image_url"`
+	RecipeId    uint64     `json:"id"`
+	Name        string     `json:"name"`
+	Category    string     `json:"category"`
+	Complexity  Complexity `json:"complexity"`
+	Rate        uint64     `json:"rate"`
+	Duration    uint64     `json:"cookingTime"`
+	Calorie     uint64     `json:"calorie"`
+	ImageURL    string     `json:"image"`
+	Description string     `json:"description"`
+}
+
+type Complexity struct {
+	ID   uint64 `json:"id"`
+	Name string `json:"name"`
 }
 
 func (u *UserFavourite) ScanFields() []interface{} {
 	return []interface{}{
 		&u.RecipeId,
 		&u.Name,
+		&u.Description,
 		&u.Duration,
 		&u.Calorie,
 		&u.ImageURL,
 		&u.Rate,
-		&u.Complexity,
+		&u.Complexity.ID,
+		&u.Complexity.Name,
 		&u.Category,
 	}
 }
