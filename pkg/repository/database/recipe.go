@@ -208,7 +208,9 @@ func (repo *RecipeRepo) GetUserFavourite(
 		"rec.rate",
 		"cplx.id",
 		"cplx.name",
-		"cat.name").From(constant.TblRecipe.As("rec")).
+		"cat.id",
+		"cat.name",
+		"cat.image").From(constant.TblRecipe.As("rec")).
 		Join(constant.TblUserFavourite.As("f on f.recipe_id=rec.id")).
 		Join(constant.TblComplexity.As("cplx on cplx.id=rec.complexity_id")).
 		Join(constant.TblCategory.As("cat on cat.id=rec.category_id")).
