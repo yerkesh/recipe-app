@@ -82,7 +82,7 @@ func (repo *RecipeRepo) GetRecipeSteps(
 	tx pgx.Tx,
 	recipeID uint64,
 ) (steps []*domain.Step, err error) {
-	qs, args, err := sql.SB().Select("number", "duration", "description").
+	qs, args, err := sql.SB().Select("number", "duration", "description", "image").
 		From(constant.TblRecipeStep.String()).Where(sq.Eq{"recipe_id": recipeID}).ToSql()
 	if err != nil {
 		log.Printf("sql scan err: %v", err)

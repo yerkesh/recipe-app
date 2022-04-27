@@ -32,9 +32,11 @@ type ReviewCreate struct {
 }
 
 type Step struct {
-	StepNumber  uint64 `json:"step_number"`
-	Description string `json:"text"`
-	Duration    uint64 `json:"duration"`
+	StepNumber  uint64         `json:"step_number"`
+	Description string         `json:"text"`
+	Duration    uint64         `json:"duration"`
+	ImageURL    sql.NullString `json:"-"`
+	Image       string         `json:"image"`
 }
 
 func (s *Step) ScanFields() []interface{} {
@@ -42,6 +44,7 @@ func (s *Step) ScanFields() []interface{} {
 		&s.StepNumber,
 		&s.Duration,
 		&s.Description,
+		&s.ImageURL,
 	}
 }
 

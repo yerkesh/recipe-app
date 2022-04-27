@@ -47,6 +47,13 @@ func (svc *RecipeService) RecipeSteps(reqCtx context.Context, recipeID uint64) (
 		return nil, fault.SanitizeServiceError(err)
 	}
 
+	for _, step := range steps {
+		if step.ImageURL.Valid {
+			step.Image = step.ImageURL.String
+		} else {
+			step.Image = ""
+		}
+	}
 	return steps, nil
 }
 
